@@ -309,6 +309,29 @@ func GetNamespace(data map[string]interface{}) string {
 	return ns
 }
 
+// clusterScopedBuiltIns are built-in resources stored without a namespace segment.
+// Key format: /registry/<resource>/<name>
+var clusterScopedBuiltIns = map[string]bool{
+	"namespaces":                         true,
+	"nodes":                              true,
+	"persistentvolumes":                  true,
+	"clusterroles":                       true,
+	"clusterrolebindings":                true,
+	"storageclasses":                     true,
+	"priorityclasses":                    true,
+	"runtimeclasses":                     true,
+	"ingressclasses":                     true,
+	"flowschemas":                        true,
+	"prioritylevelconfigurations":        true,
+	"mutatingwebhookconfigurations":      true,
+	"validatingwebhookconfigurations":    true,
+	"customresourcedefinitions":          true,
+	"csidrivers":                         true,
+	"csinodes":                           true,
+	"volumeattachments":                  true,
+	"csistoragecapacities":              true,
+}
+
 // NameFromKey extracts the resource name from an etcd key path.
 // The last segment of the key is always the resource name.
 // e.g. "/registry/pods/default/nginx" -> "nginx"
@@ -318,4 +341,72 @@ func NameFromKey(keyPath string) string {
 		return keyPath[i+1:]
 	}
 	return keyPath
+}
+
+// NamespaceFromKey attempts to extract the namespace from an etcd key path.
+// For built-in namespaced resources: /registry/<resource>/<namespace>/<name> -> namespace
+// For cluster-scoped resources or ambiguous keys, returns "".
+func NamespaceFromKey(keyPath string) string {
+	keyPath = strings.TrimSuffix(keyPath, "/")
+	parts := strings.Split(strings.TrimPrefix(keyPath, "/"), "/")
+	// parts[0]="registry", parts[1]=resource, parts[2]=namespace?, parts[3]=name?
+
+	if len(parts) < 4 {
+		return "" // too short to have a namespace
+	}
+
+	resource := parts[1]
+
+	// For built-in resources, check if cluster-scoped
+	if isKnownBuiltIn(resource) {
+		if clusterScopedBuiltIns[resource] {
+			return "" // cluster-scoped: /registry/<resource>/<name>
+		}
+		// Namespaced built-in: /registry/<resource>/<namespace>/<name>
+		if len(parts) >= 4 {
+			return parts[2]
+		}
+		return ""
+	}
+
+	// For CRDs: /registry/<group>/<resource>/<namespace>/<name>
+	// 5+ parts with a dot in the group segment suggests namespaced CRD
+	if len(parts) >= 5 && strings.Contains(parts[1], ".") {
+		return parts[3]
+	}
+
+	return ""
+}
+
+// isKnownBuiltIn checks if a resource name matches a known built-in resource.
+func isKnownBuiltIn(resource string) bool {
+	for _, prefix := range builtInPaths {
+		// Extract resource name from prefix like "/registry/pods/"
+		trimmed := strings.TrimPrefix(prefix, "/registry/")
+		trimmed = strings.TrimSuffix(trimmed, "/")
+		if trimmed == resource {
+			return true
+		}
+	}
+	return false
+}
+
+// SetName sets metadata.name in an unstructured map.
+func SetName(data map[string]interface{}, name string) {
+	metadata, ok := data["metadata"].(map[string]interface{})
+	if !ok {
+		metadata = make(map[string]interface{})
+		data["metadata"] = metadata
+	}
+	metadata["name"] = name
+}
+
+// SetNamespace sets metadata.namespace in an unstructured map.
+func SetNamespace(data map[string]interface{}, namespace string) {
+	metadata, ok := data["metadata"].(map[string]interface{})
+	if !ok {
+		metadata = make(map[string]interface{})
+		data["metadata"] = metadata
+	}
+	metadata["namespace"] = namespace
 }

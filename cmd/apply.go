@@ -45,12 +45,30 @@ func runApply(cmd *cobra.Command, args []string) error {
 		os.Exit(ExitEncodingError)
 	}
 
-	// Name mismatch warning: the etcd key determines the actual target, not the manifest name
-	manifestName := codec.GetName(data)
+	// Reconcile metadata.name with the etcd key — the key is authoritative.
+	// The API server computes the storage key from the object's metadata.name,
+	// so a mismatch makes the resource invisible to Kubernetes.
 	keyName := codec.NameFromKey(keyPath)
-	if manifestName != "" && manifestName != keyName {
-		warnf("Manifest metadata.name %q does not match the etcd key name %q.", manifestName, keyName)
-		warnf("The resource will be written to the etcd key %s regardless of the manifest name.", keyPath)
+	manifestName := codec.GetName(data)
+	if manifestName == "" {
+		fmt.Fprintf(os.Stderr, "Setting metadata.name to %q (derived from etcd key).\n", keyName)
+	} else if manifestName != keyName {
+		warnf("Manifest metadata.name %q does not match etcd key name %q.", manifestName, keyName)
+		warnf("Overriding metadata.name to %q so the API server can find this resource.", keyName)
+	}
+	codec.SetName(data, keyName)
+
+	// Reconcile metadata.namespace with the etcd key when detectable.
+	keyNamespace := codec.NamespaceFromKey(keyPath)
+	if keyNamespace != "" {
+		manifestNamespace := codec.GetNamespace(data)
+		if manifestNamespace == "" {
+			fmt.Fprintf(os.Stderr, "Setting metadata.namespace to %q (derived from etcd key).\n", keyNamespace)
+		} else if manifestNamespace != keyNamespace {
+			warnf("Manifest metadata.namespace %q does not match etcd key namespace %q.", manifestNamespace, keyNamespace)
+			warnf("Overriding metadata.namespace to %q so the API server can find this resource.", keyNamespace)
+		}
+		codec.SetNamespace(data, keyNamespace)
 	}
 
 	// UID handling

@@ -183,6 +183,70 @@ func TestFromYAMLInvalid(t *testing.T) {
 	}
 }
 
+func TestNameFromKey(t *testing.T) {
+	tests := []struct {
+		keyPath string
+		want    string
+	}{
+		{"/registry/pods/default/nginx", "nginx"},
+		{"/registry/namespaces/default", "default"},
+		{"/registry/clusterroles/admin", "admin"},
+		{"/registry/crontabs.stable.example.com/default/my-cron", "my-cron"},
+		{"/registry/pods/default/nginx/", "nginx"}, // trailing slash
+	}
+	for _, tt := range tests {
+		t.Run(tt.keyPath, func(t *testing.T) {
+			if got := NameFromKey(tt.keyPath); got != tt.want {
+				t.Errorf("NameFromKey(%q) = %q, want %q", tt.keyPath, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNamespaceFromKey(t *testing.T) {
+	tests := []struct {
+		keyPath string
+		want    string
+	}{
+		// Namespaced built-in
+		{"/registry/pods/default/nginx", "default"},
+		{"/registry/services/kube-system/kube-dns", "kube-system"},
+		{"/registry/configmaps/my-ns/my-cm", "my-ns"},
+		{"/registry/deployments/production/my-deploy", "production"},
+		// Cluster-scoped built-in (no namespace)
+		{"/registry/namespaces/default", ""},
+		{"/registry/nodes/worker-1", ""},
+		{"/registry/clusterroles/admin", ""},
+		{"/registry/clusterrolebindings/admin-binding", ""},
+		{"/registry/persistentvolumes/pv-1", ""},
+		// CRD namespaced (group contains dot)
+		{"/registry/crontabs.stable.example.com/crontabs/default/my-cron", "default"},
+		// CRD cluster-scoped or ambiguous (too few parts)
+		{"/registry/crontabs.stable.example.com/my-cron", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.keyPath, func(t *testing.T) {
+			if got := NamespaceFromKey(tt.keyPath); got != tt.want {
+				t.Errorf("NamespaceFromKey(%q) = %q, want %q", tt.keyPath, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSetNameAndNamespace(t *testing.T) {
+	data := map[string]interface{}{}
+
+	SetName(data, "my-pod")
+	if got := GetName(data); got != "my-pod" {
+		t.Errorf("SetName: got %q, want %q", got, "my-pod")
+	}
+
+	SetNamespace(data, "production")
+	if got := GetNamespace(data); got != "production" {
+		t.Errorf("SetNamespace: got %q, want %q", got, "production")
+	}
+}
+
 func TestEncodeForKey(t *testing.T) {
 	// CRD path should use JSON
 	data := map[string]interface{}{
