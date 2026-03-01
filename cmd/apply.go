@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -35,7 +36,7 @@ func runApply(cmd *cobra.Command, args []string) error {
 	var yamlBytes []byte
 	var err error
 	if manifestFile == "-" {
-		yamlBytes, err = os.ReadFile("/dev/stdin")
+		yamlBytes, err = io.ReadAll(os.Stdin)
 		if err != nil {
 			return fmt.Errorf("reading from stdin: %w", err)
 		}
