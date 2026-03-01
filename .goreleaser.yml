@@ -13,6 +13,7 @@ builds:
       - arm64
     ldflags:
       - -s -w
+      - -X=github.com/ahmetb/etcdedit/cmd.version={{ .Version }}
 
 archives:
   - format: tar.gz

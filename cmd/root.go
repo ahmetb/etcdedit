@@ -11,16 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version string
+
 // Connection flag variables
 var (
-	endpoints          string
-	cacert             string
-	cert               string
-	key                string
-	user               string
-	password           string
-	insecureSkipTLS    bool
-	dialTimeout        time.Duration
+	endpoints       string
+	cacert          string
+	cert            string
+	key             string
+	user            string
+	password        string
+	insecureSkipTLS bool
+	dialTimeout     time.Duration
 )
 
 var rootCmd = &cobra.Command{
@@ -45,6 +47,19 @@ func init() {
 	pf.StringVar(&password, "password", os.Getenv("ETCDCTL_PASSWORD"), "password for authentication")
 	pf.BoolVar(&insecureSkipTLS, "insecure-skip-tls-verify", envBool("ETCDCTL_INSECURE_SKIP_TLS_VERIFY"), "skip TLS verification")
 	pf.DurationVar(&dialTimeout, "dial-timeout", 2*time.Second, "dial timeout")
+
+	rootCmd.AddCommand(versionCmd)
+}
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print version",
+	Run: func(cmd *cobra.Command, args []string) {
+		if version == "" {
+			version = "dev"
+		}
+		fmt.Println(version)
+	},
 }
 
 // Execute runs the root command.
