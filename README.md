@@ -22,7 +22,8 @@ Sometimes you need to directly access the data stored in etcd:
 ## Installation
 
 ```bash
-brew install ahmetb/etcdedit/etcdedit
+brew tap ahmetb/etcdedit https://github.com/ahmetb/etcdedit
+brew install etcdedit
 ```
 
 ```bash
