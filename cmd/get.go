@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/abalkan/etcdedit/pkg/codec"
 	"github.com/spf13/cobra"
@@ -29,25 +28,21 @@ func runGet(cmd *cobra.Command, args []string) error {
 
 	client, err := newEtcdClient(ctx)
 	if err != nil {
-		errorf("%v", err)
-		os.Exit(ExitConnectionError)
+		return err
 	}
 	defer client.Close()
 
 	result, err := client.Get(ctx, keyPath)
 	if err != nil {
-		errorf("reading from etcd: %v", err)
-		os.Exit(ExitConnectionError)
+		return fmt.Errorf("reading from etcd: %w", err)
 	}
 	if result == nil {
-		errorf("key not found: %s", keyPath)
-		os.Exit(ExitKeyNotFound)
+		return fmt.Errorf("key not found: %s", keyPath)
 	}
 
 	decoded, err := codec.Decode(keyPath, result.Value)
 	if err != nil {
-		errorf("decoding: %v", err)
-		os.Exit(ExitEncodingError)
+		return fmt.Errorf("decoding: %w", err)
 	}
 
 	var output []byte
@@ -60,8 +55,7 @@ func runGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unsupported output format: %s (use yaml or json)", outputFormat)
 	}
 	if err != nil {
-		errorf("formatting output: %v", err)
-		os.Exit(ExitEncodingError)
+		return fmt.Errorf("formatting output: %w", err)
 	}
 
 	fmt.Print(string(output))

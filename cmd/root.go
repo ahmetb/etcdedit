@@ -11,17 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Exit codes
-const (
-	ExitSuccess            = 0
-	ExitGeneralError       = 1
-	ExitKeyNotFound        = 2
-	ExitEditorFailed       = 3
-	ExitEncodingError      = 4
-	ExitConnectionError    = 5
-	ExitConcurrencyConflict = 6
-)
-
 // Connection flag variables
 var (
 	endpoints          string

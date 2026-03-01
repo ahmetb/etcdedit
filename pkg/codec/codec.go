@@ -82,24 +82,11 @@ type DecodeResult struct {
 }
 
 // Decode detects the encoding of etcd value bytes and decodes to an unstructured map.
-// For built-in key paths, it attempts protobuf first, then falls back to JSON.
-// For non-built-in paths, it decodes as JSON directly.
+// Built-in key paths are decoded as protobuf. All other paths are decoded as JSON.
 func Decode(keyPath string, data []byte) (*DecodeResult, error) {
 	if IsBuiltIn(keyPath) {
-		// Try protobuf first
-		result, err := decodeProtobuf(data)
-		if err == nil {
-			return result, nil
-		}
-		// Fall back to JSON
-		result, err = decodeJSON(data)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode as protobuf or JSON: %w", err)
-		}
-		return result, nil
+		return decodeProtobuf(data)
 	}
-
-	// Non-built-in: decode as JSON
 	return decodeJSON(data)
 }
 

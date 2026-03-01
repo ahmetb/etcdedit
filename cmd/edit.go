@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -33,20 +32,17 @@ func runEdit(cmd *cobra.Command, args []string) error {
 
 	client, err := newEtcdClient(ctx)
 	if err != nil {
-		errorf("%v", err)
-		os.Exit(ExitConnectionError)
+		return err
 	}
 	defer client.Close()
 
 	// Read from etcd
 	result, err := client.Get(ctx, keyPath)
 	if err != nil {
-		errorf("reading from etcd: %v", err)
-		os.Exit(ExitConnectionError)
+		return fmt.Errorf("reading from etcd: %w", err)
 	}
 	if result == nil {
-		errorf("key not found: %s", keyPath)
-		os.Exit(ExitKeyNotFound)
+		return fmt.Errorf("key not found: %s", keyPath)
 	}
 
 	modRevision := result.ModRevision
@@ -55,23 +51,20 @@ func runEdit(cmd *cobra.Command, args []string) error {
 	// Decode to YAML
 	yamlBytes, decodeResult, err := codec.UnstructuredToYAML(keyPath, originalBytes)
 	if err != nil {
-		errorf("decoding: %v", err)
-		os.Exit(ExitEncodingError)
+		return fmt.Errorf("decoding: %w", err)
 	}
 
 	// Write YAML to temp file for editing
 	tmpFile, err := os.CreateTemp("", "etcdedit-*.yaml")
 	if err != nil {
-		errorf("creating temp file: %v", err)
-		os.Exit(ExitGeneralError)
+		return fmt.Errorf("creating temp file: %w", err)
 	}
 	tmpPath := tmpFile.Name()
 	defer os.Remove(tmpPath)
 
 	if _, err := tmpFile.Write(yamlBytes); err != nil {
 		tmpFile.Close()
-		errorf("writing temp file: %v", err)
-		os.Exit(ExitGeneralError)
+		return fmt.Errorf("writing temp file: %w", err)
 	}
 	tmpFile.Close()
 
@@ -82,21 +75,18 @@ func runEdit(cmd *cobra.Command, args []string) error {
 	for {
 		// Launch editor
 		if err := editor.LaunchEditor(editorCmd, tmpPath); err != nil {
-			errorf("editor failed: %v", err)
-			os.Exit(ExitEditorFailed)
+			return fmt.Errorf("editor failed: %w", err)
 		}
 
 		// Read edited content
 		editedBytes, err := os.ReadFile(tmpPath)
 		if err != nil {
-			errorf("reading edited file: %v", err)
-			os.Exit(ExitGeneralError)
+			return fmt.Errorf("reading edited file: %w", err)
 		}
 
 		// Check for abort
 		if editor.IsAborted(editedBytes) {
-			fmt.Fprintln(os.Stderr, "Edit aborted (empty file).")
-			os.Exit(ExitEditorFailed)
+			return fmt.Errorf("edit aborted (empty file)")
 		}
 
 		// Try to encode back
@@ -110,30 +100,26 @@ func runEdit(cmd *cobra.Command, args []string) error {
 		// Optimistic concurrency check via transaction
 		ok, err := client.PutIfUnmodified(ctx, keyPath, encoded, modRevision)
 		if err != nil {
-			errorf("writing to etcd: %v", err)
-			os.Exit(ExitConnectionError)
+			return fmt.Errorf("writing to etcd: %w", err)
 		}
 		if !ok {
-			errorf("concurrency conflict: key was modified by another process since you started editing")
-			errorf("Please re-run the edit command to reload the latest version.")
-			os.Exit(ExitConcurrencyConflict)
+			return fmt.Errorf("concurrency conflict: key was modified by another process since you started editing, please retry")
 		}
 
-		// Save backup of original value
-		backupPath := saveBackup(keyPath, yamlBytes)
+		// Save backup of original raw etcd value
+		backupPath := saveBackup(originalBytes)
 		successf("Updated %s", keyPath)
 		fmt.Fprintf(os.Stderr, "Backup of original saved to: %s\n", backupPath)
 		return nil
 	}
 }
 
-// saveBackup saves the original YAML to a backup temp file and returns the path.
-func saveBackup(keyPath string, yamlBytes []byte) string {
-	hash := sha256.Sum256([]byte(keyPath))
-	filename := fmt.Sprintf("etcdedit-backup-%x-%d.yaml", hash[:8], time.Now().Unix())
+// saveBackup saves the original raw etcd bytes to a backup file and returns the path.
+func saveBackup(rawBytes []byte) string {
+	filename := fmt.Sprintf("etcdedit-backup-%d.bin", time.Now().UnixMilli())
 	backupPath := filepath.Join(os.TempDir(), filename)
 
-	if err := os.WriteFile(backupPath, yamlBytes, 0600); err != nil {
+	if err := os.WriteFile(backupPath, rawBytes, 0644); err != nil {
 		warnf("failed to save backup: %v", err)
 		return "(backup failed)"
 	}

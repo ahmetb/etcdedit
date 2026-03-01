@@ -34,15 +34,26 @@ func runApply(cmd *cobra.Command, args []string) error {
 	// Read manifest file
 	yamlBytes, err := os.ReadFile(manifestFile)
 	if err != nil {
-		errorf("reading manifest: %v", err)
-		os.Exit(ExitGeneralError)
+		return fmt.Errorf("reading manifest: %w", err)
 	}
 
 	// Parse YAML
 	data, err := codec.FromYAML(yamlBytes)
 	if err != nil {
-		errorf("parsing manifest: %v", err)
-		os.Exit(ExitEncodingError)
+		return fmt.Errorf("parsing manifest: %w", err)
+	}
+
+	// Connect to etcd
+	client, err := newEtcdClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	// Check if key exists (for created vs updated messaging and UID handling)
+	exists, err := client.Exists(ctx, keyPath)
+	if err != nil {
+		return fmt.Errorf("checking key existence: %w", err)
 	}
 
 	// Reconcile metadata.name with the etcd key — the key is authoritative.
@@ -71,46 +82,35 @@ func runApply(cmd *cobra.Command, args []string) error {
 		codec.SetNamespace(data, keyNamespace)
 	}
 
-	// UID handling
-	if uid := codec.GetUID(data); uid != "" {
-		warnf("Manifest contains metadata.uid: %s", uid)
-		warnf("Reusing a UID from another resource can cause conflicts in Kubernetes.")
+	// UID handling — only for new resources
+	if !exists {
+		if uid := codec.GetUID(data); uid != "" {
+			warnf("Manifest contains metadata.uid: %s", uid)
+			warnf("Reusing a UID from another resource can cause conflicts in Kubernetes.")
 
-		if promptYesNo("Reuse this UID?") {
-			fmt.Fprintf(os.Stderr, "Keeping existing UID: %s\n", uid)
+			if promptYesNo("Reuse this UID?") {
+				fmt.Fprintf(os.Stderr, "Keeping existing UID: %s\n", uid)
+			} else {
+				newUID := uuid.New().String()
+				codec.SetUID(data, newUID)
+				fmt.Fprintf(os.Stderr, "Generated new UID: %s\n", newUID)
+			}
 		} else {
+			// Auto-generate UID for new resources that don't have one
 			newUID := uuid.New().String()
 			codec.SetUID(data, newUID)
-			fmt.Fprintf(os.Stderr, "Generated new UID: %s\n", newUID)
 		}
-	}
-
-	// Connect to etcd
-	client, err := newEtcdClient(ctx)
-	if err != nil {
-		errorf("%v", err)
-		os.Exit(ExitConnectionError)
-	}
-	defer client.Close()
-
-	// Check if key exists (for created vs updated messaging)
-	exists, err := client.Exists(ctx, keyPath)
-	if err != nil {
-		errorf("checking key existence: %v", err)
-		os.Exit(ExitConnectionError)
 	}
 
 	// Encode
 	encoded, err := codec.EncodeForKey(keyPath, data)
 	if err != nil {
-		errorf("encoding: %v", err)
-		os.Exit(ExitEncodingError)
+		return fmt.Errorf("encoding: %w", err)
 	}
 
 	// Write to etcd
 	if err := client.Put(ctx, keyPath, encoded); err != nil {
-		errorf("writing to etcd: %v", err)
-		os.Exit(ExitConnectionError)
+		return fmt.Errorf("writing to etcd: %w", err)
 	}
 
 	if exists {
