@@ -31,10 +31,19 @@ func runApply(cmd *cobra.Command, args []string) error {
 	keyPath := args[0]
 	ctx := context.Background()
 
-	// Read manifest file
-	yamlBytes, err := os.ReadFile(manifestFile)
-	if err != nil {
-		return fmt.Errorf("reading manifest: %w", err)
+	// Read manifest file (or stdin if "-")
+	var yamlBytes []byte
+	var err error
+	if manifestFile == "-" {
+		yamlBytes, err = os.ReadFile("/dev/stdin")
+		if err != nil {
+			return fmt.Errorf("reading from stdin: %w", err)
+		}
+	} else {
+		yamlBytes, err = os.ReadFile(manifestFile)
+		if err != nil {
+			return fmt.Errorf("reading manifest: %w", err)
+		}
 	}
 
 	// Parse YAML
