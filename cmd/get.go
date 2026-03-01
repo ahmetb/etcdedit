@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/abalkan/etcdedit/pkg/codec"
+	"github.com/ahmetb/etcdedit/pkg/codec"
 	"github.com/spf13/cobra"
 )
 

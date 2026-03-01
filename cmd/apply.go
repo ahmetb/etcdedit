@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/abalkan/etcdedit/pkg/codec"
+	"github.com/ahmetb/etcdedit/pkg/codec"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )

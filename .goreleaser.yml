@@ -1,0 +1,39 @@
+version: 2
+
+builds:
+  - main: .
+    binary: etcdedit
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+
+brews:
+  - repository:
+      owner: ahmetb
+      name: etcdedit
+      branch: main
+    directory: HomebrewFormula
+    homepage: https://github.com/ahmetb/etcdedit
+    description: Directly edit Kubernetes resources stored in etcd
+    license: Apache-2.0
+    install: |
+      bin.install "etcdedit"
+    test: |
+      system "#{bin}/etcdedit", "--help"

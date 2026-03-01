@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/abalkan/etcdedit/cmd"
+	"github.com/ahmetb/etcdedit/cmd"
 )
 
 func main() {

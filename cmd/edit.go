@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/abalkan/etcdedit/pkg/codec"
-	"github.com/abalkan/etcdedit/pkg/editor"
+	"github.com/ahmetb/etcdedit/pkg/codec"
+	"github.com/ahmetb/etcdedit/pkg/editor"
 	"github.com/spf13/cobra"
 )
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/abalkan/etcdedit/pkg/etcd"
+	"github.com/ahmetb/etcdedit/pkg/etcd"
 	"github.com/spf13/cobra"
 )
 

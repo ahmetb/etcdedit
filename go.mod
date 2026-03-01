@@ -1,4 +1,4 @@
-module github.com/abalkan/etcdedit
+module github.com/ahmetb/etcdedit
 
 go 1.25.0
 
