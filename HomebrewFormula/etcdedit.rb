@@ -11,7 +11,7 @@ class Etcdedit < Formula
   on_macos do
     if Hardware::CPU.intel?
       url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.0/etcdedit_darwin_amd64.tar.gz"
-      sha256 "77fd8cbadfcfdb02f44b89c5cc6e244f364e298a0be5353d3c500dfc0f149f84"
+      sha256 "ff72239bfc292fc289d96bdc9dec4e6a964d15d8a2a865d9484d6c91ddd5c6ff"
 
       define_method(:install) do
         bin.install "etcdedit"
@@ -19,7 +19,7 @@ class Etcdedit < Formula
     end
     if Hardware::CPU.arm?
       url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.0/etcdedit_darwin_arm64.tar.gz"
-      sha256 "1f0aab2f6c592b217ac5db7736455e78d4154c3d329b7089e408b73e7b5ed279"
+      sha256 "f1b04a9a2737ee3f300d84b26e1a40a94173c8fadfeaf54fe88fc08079e060fb"
 
       define_method(:install) do
         bin.install "etcdedit"
@@ -30,14 +30,14 @@ class Etcdedit < Formula
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
       url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.0/etcdedit_linux_amd64.tar.gz"
-      sha256 "0f938b292eed9b865735369c6745774c220f321e81ad95ed7637c69085130773"
+      sha256 "654a698e0fb4cd6ebe12a0dc322d6a7f7b96cc19c0d5863a06c41dae2b4a02cc"
       define_method(:install) do
         bin.install "etcdedit"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
       url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.0/etcdedit_linux_arm64.tar.gz"
-      sha256 "52dbac59280a5b52608a723de4f8766233ec3c8ac156547b84e8f9dedd0dd859"
+      sha256 "3ffceb652a99869a08ddadcf6869ff6ff524b3c0eba695488081a12aa992761e"
       define_method(:install) do
         bin.install "etcdedit"
       end
