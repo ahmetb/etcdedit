@@ -27,9 +27,8 @@ changelog:
 brews:
   - repository:
       owner: ahmetb
-      name: etcdedit
+      name: homebrew-tap
       branch: main
-    directory: HomebrewFormula
     homepage: https://github.com/ahmetb/etcdedit
     description: Directly edit Kubernetes resources stored in etcd
     license: Apache-2.0
