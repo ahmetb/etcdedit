@@ -5,21 +5,21 @@
 class Etcdedit < Formula
   desc "Directly edit Kubernetes resources stored in etcd"
   homepage "https://github.com/ahmetb/etcdedit"
-  version "0.1.1"
+  version "0.1.2"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.1/etcdedit_darwin_amd64.tar.gz"
-      sha256 "5009a46791fa0ed4f87b330d21cf7ffdc78c7bd6fd950c247d5a0a78a809b2e8"
+      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.2/etcdedit_darwin_amd64.tar.gz"
+      sha256 "944580b608e3a66e53f82bcce1e70733c6c0a0337cddcaba72998fda5313844d"
 
       define_method(:install) do
         bin.install "etcdedit"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.1/etcdedit_darwin_arm64.tar.gz"
-      sha256 "5e26905a6d105b737d7140b46fa8ec64460adbe756e82207344b5515cd89e279"
+      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.2/etcdedit_darwin_arm64.tar.gz"
+      sha256 "cbf789a077ee1113ddc346057f01a6cc1e4b7e8e8ea98fa10d2e1aadd0a7185c"
 
       define_method(:install) do
         bin.install "etcdedit"
@@ -29,15 +29,15 @@ class Etcdedit < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.1/etcdedit_linux_amd64.tar.gz"
-      sha256 "3eff186fa6f7066fd3780fb6e3cb6cd18d0504667221d6fda202e6381b8bc838"
+      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.2/etcdedit_linux_amd64.tar.gz"
+      sha256 "e038c4721e1d543288050af473626afad717f6264d8d4e3ba87ac12e27fd31db"
       define_method(:install) do
         bin.install "etcdedit"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.1/etcdedit_linux_arm64.tar.gz"
-      sha256 "83a6ea080fefa8998a1792568ec21c38fecc8e409075883a06e0b629b7586db9"
+      url "https://github.com/ahmetb/etcdedit/releases/download/v0.1.2/etcdedit_linux_arm64.tar.gz"
+      sha256 "d43071f2a621ac9bec52b43c200886d072cf39fbe470f41a81d22659d27893eb"
       define_method(:install) do
         bin.install "etcdedit"
       end
