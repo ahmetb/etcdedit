@@ -51,10 +51,11 @@ Kubernetes stores resources in etcd using two different encodings:
 
 ## Built-in Resource Path Registry
 
-The following paths indicate protobuf-encoded built-in resources:
+The following paths indicate protobuf-encoded built-in resources (as of Kubernetes 1.35):
 
 ```go
 var builtInPaths = []string{
+    // Core API (/api/v1)
     "/registry/pods/",
     "/registry/services/",
     "/registry/endpoints/",
@@ -69,34 +70,84 @@ var builtInPaths = []string{
     "/registry/persistentvolumes/",
     "/registry/persistentvolumeclaims/",
     "/registry/replicationcontrollers/",
+    "/registry/podtemplates/",
+    "/registry/componentstatuses/",
+    "/registry/rangeallocations/",
+    // Apps API (/apis/apps/v1)
     "/registry/deployments/",
     "/registry/replicasets/",
     "/registry/statefulsets/",
     "/registry/daemonsets/",
+    "/registry/controllerrevisions/",
+    // Batch API (/apis/batch/v1)
     "/registry/jobs/",
     "/registry/cronjobs/",
+    // Autoscaling API (/apis/autoscaling/v1)
+    "/registry/horizontalpodautoscalers/",
+    // RBAC API (/apis/rbac.authorization.k8s.io/v1)
     "/registry/roles/",
     "/registry/rolebindings/",
     "/registry/clusterroles/",
     "/registry/clusterrolebindings/",
-    "/registry/storageclasses/",
-    "/registry/csistoragecapacities/",
-    "/registry/csdrivers/",
-    "/registry/csinodes/",
-    "/registry/volumeattachments/",
-    "/registry/leases/",
-    "/registry/priorityclasses/",
-    "/registry/runtimeclasses/",
+    // Networking API (/apis/networking.k8s.io/v1)
     "/registry/networkpolicies/",
     "/registry/ingresses/",
     "/registry/ingressclasses/",
-    "/registry/endpointslices/",
+    "/registry/servicecidrs/",
+    "/registry/ipaddresses/",
+    // Discovery API (/apis/discovery.k8s.io/v1)
+    "/registry/endpointslice/",
+    // Policy API (/apis/policy/v1)
+    "/registry/poddisruptionbudgets/",
+    // Storage API (/apis/storage.k8s.io/v1)
+    "/registry/storageclasses/",
+    "/registry/csistoragecapacities/",
+    "/registry/csidrivers/",
+    "/registry/csinodes/",
+    "/registry/volumeattachments/",
+    "/registry/volumeattributesclasses/",
+    // Coordination API (/apis/coordination.k8s.io/v1)
+    "/registry/leases/",
+    "/registry/leasecandidates/",
+    // Scheduling API (/apis/scheduling.k8s.io/v1)
+    "/registry/priorityclasses/",
+    "/registry/workloads/",
+    // Node API (/apis/node.k8s.io/v1)
+    "/registry/runtimeclasses/",
+    // FlowControl API (/apis/flowcontrol.apiserver.k8s.io/v1)
     "/registry/flowschemas/",
     "/registry/prioritylevelconfigurations/",
+    // AdmissionRegistration API (/apis/admissionregistration.k8s.io/v1)
     "/registry/mutatingwebhookconfigurations/",
     "/registry/validatingwebhookconfigurations/",
+    "/registry/mutatingadmissionpolicies/",
+    "/registry/mutatingadmissionpolicybindings/",
+    "/registry/validatingadmissionpolicies/",
+    "/registry/validatingadmissionpolicybindings/",
+    // Apiextensions API (/apis/apiextensions.k8s.io/v1)
     "/registry/customresourcedefinitions/",
-    "/registry/controllerrevisions/",
+    // Certificates API (/apis/certificates.k8s.io/v1)
+    "/registry/certificatesigningrequests/",
+    "/registry/clustertrustbundles/",
+    "/registry/podcertificaterequests/",
+    // Authentication API (/apis/authentication.k8s.io/v1)
+    "/registry/tokenreviews/",
+    "/registry/selfsubjectreviews/",
+    // Authorization API (/apis/authorization.k8s.io/v1)
+    "/registry/selfsubjectaccessreviews/",
+    "/registry/selfsubjectrulesreviews/",
+    "/registry/subjectaccessreviews/",
+    "/registry/localsubjectaccessreviews/",
+    // Resource API (/apis/resource.k8s.io/v1)
+    "/registry/resourceclaims/",
+    "/registry/resourceclaimtemplates/",
+    "/registry/resourceslices/",
+    "/registry/deviceclasses/",
+    "/registry/devicetaintrules/",
+    // StorageMigration API (/apis/storagemigration.k8s.io/v1alpha1)
+    "/registry/storagemigrations/",
+    // APIServerInternal API (/apis/internal.apiserver.k8s.io/v1alpha1)
+    "/registry/storageversions/",
 }
 ```
 
