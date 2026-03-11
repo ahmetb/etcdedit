@@ -39,6 +39,11 @@ brew install etcdedit
 go install github.com/ahmetb/etcdedit@latest
 ```
 
+## Quick Start
+
+Follow the [kind tutorial](docs/tutorial-kind.md) to try `etcdedit` on a local
+cluster in minutes.
+
 ## Usage
 
 Set credentials in the env (or --flags) the same way you would for `etcdctl`:
