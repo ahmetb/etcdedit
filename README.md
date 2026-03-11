@@ -24,6 +24,8 @@ Sometimes you need to directly access the data stored in etcd:
 
 - Recover from a broken cluster state, or restore admin access to the cluster
 - Inspect or modify resources when the API server is unavailable
+- Restore a resource stuck in an irreversible "deleting" state
+- Bypass API validation or webhooks to make a change
 - Load the cluster with objects as fast as possible for stress testing
 
 ## Installation
