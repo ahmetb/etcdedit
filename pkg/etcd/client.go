@@ -95,6 +95,17 @@ func NewClient(ctx context.Context, opts ConnOpts) (*Client, error) {
 		return nil, fmt.Errorf("connect to etcd: %w", err)
 	}
 
+	// Probe connectivity so --dial-timeout is actually honored.
+	// The etcd v3 client connects lazily, so without this check the
+	// client would hang indefinitely when the endpoint is unreachable.
+	probeCtx, cancel := context.WithTimeout(ctx, cfg.DialTimeout)
+	defer cancel()
+	_, err = c.Status(probeCtx, opts.Endpoints[0])
+	if err != nil {
+		c.Close()
+		return nil, fmt.Errorf("connect to etcd: %w", err)
+	}
+
 	return &Client{kv: c.KV, c: c}, nil
 }
 
