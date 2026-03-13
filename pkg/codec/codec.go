@@ -418,6 +418,21 @@ func SetName(data map[string]interface{}, name string) {
 	metadata["name"] = name
 }
 
+// HasMultipleDocuments checks if YAML bytes contain more than one document.
+func HasMultipleDocuments(yamlBytes []byte) bool {
+	docs := bytes.Split(yamlBytes, []byte("\n---"))
+	count := 0
+	for _, doc := range docs {
+		if len(bytes.TrimSpace(doc)) > 0 {
+			count++
+		}
+		if count > 1 {
+			return true
+		}
+	}
+	return false
+}
+
 // SetNamespace sets metadata.namespace in an unstructured map.
 func SetNamespace(data map[string]interface{}, namespace string) {
 	metadata, ok := data["metadata"].(map[string]interface{})

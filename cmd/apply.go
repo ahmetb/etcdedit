@@ -47,6 +47,10 @@ func runApply(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if codec.HasMultipleDocuments(yamlBytes) {
+		return fmt.Errorf("manifest contains multiple YAML documents (separated by ---); apply only supports a single document per key")
+	}
+
 	// Parse YAML
 	data, err := codec.FromYAML(yamlBytes)
 	if err != nil {
