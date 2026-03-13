@@ -383,9 +383,16 @@ func NamespaceFromKey(keyPath string) string {
 		if clusterScopedBuiltIns[resource] {
 			return "" // cluster-scoped: /registry/<resource>/<name>
 		}
-		// Services are stored with a sub-resource segment:
-		// /registry/services/specs/<namespace>/<name>
-		// /registry/services/endpoints/<namespace>/<name>
+		// Special case: Kubernetes stores Services and Endpoints with an extra
+		// sub-resource segment in the etcd key path, unlike all other built-in
+		// resources which follow /registry/<resource>/<namespace>/<name>.
+		//
+		// Service specs:    /registry/services/specs/<namespace>/<name>
+		// Service endpoints: /registry/services/endpoints/<namespace>/<name>
+		//
+		// Because of this extra segment, the namespace is at parts[3] (not
+		// parts[2] as with other namespaced resources), and we need at least
+		// 5 path segments to extract it.
 		if resource == "services" {
 			if len(parts) >= 5 {
 				return parts[3]
