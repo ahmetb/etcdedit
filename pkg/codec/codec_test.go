@@ -251,6 +251,27 @@ func TestSetNameAndNamespace(t *testing.T) {
 	}
 }
 
+func TestHasMultipleDocuments(t *testing.T) {
+	tests := []struct {
+		name string
+		yaml string
+		want bool
+	}{
+		{"single doc", "apiVersion: v1\nkind: Pod\n", false},
+		{"two docs", "apiVersion: v1\nkind: Pod\n---\napiVersion: v1\nkind: Service\n", true},
+		{"leading separator", "---\napiVersion: v1\nkind: Pod\n", false},
+		{"trailing separator", "apiVersion: v1\nkind: Pod\n---\n", false},
+		{"separator in middle no content after", "apiVersion: v1\nkind: Pod\n---\n  \n", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := HasMultipleDocuments([]byte(tt.yaml)); got != tt.want {
+				t.Errorf("HasMultipleDocuments() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestEncodeForKey(t *testing.T) {
 	// CRD path should use JSON
 	data := map[string]interface{}{
