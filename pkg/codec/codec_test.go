@@ -13,7 +13,7 @@ func TestIsBuiltIn(t *testing.T) {
 		{"/registry/pods/default/nginx", true},
 		{"/registry/services/kube-system/kube-dns", true},
 		{"/registry/namespaces/default", true},
-		{"/registry/nodes/worker-1", true},
+		{"/registry/nodes/worker-1", false}, // Kubernetes uses /registry/minions/, not /registry/nodes/
 		{"/registry/deployments/default/my-deploy", true},
 		{"/registry/configmaps/default/my-cm", true},
 		{"/registry/clusterroles/admin", true},
@@ -216,7 +216,7 @@ func TestNamespaceFromKey(t *testing.T) {
 		{"/registry/deployments/production/my-deploy", "production"},
 		// Cluster-scoped built-in (no namespace)
 		{"/registry/namespaces/default", ""},
-		{"/registry/nodes/worker-1", ""},
+		{"/registry/nodes/worker-1", ""},    // not a real path (K8s uses /registry/minions/), but still no namespace
 		{"/registry/clusterroles/admin", ""},
 		{"/registry/clusterrolebindings/admin-binding", ""},
 		{"/registry/persistentvolumes/pv-1", ""},

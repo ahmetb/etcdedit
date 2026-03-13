@@ -22,7 +22,8 @@ var builtInPaths = []string{
 	"/registry/configmaps/",
 	"/registry/secrets/",
 	"/registry/namespaces/",
-	"/registry/nodes/",
+	// NOTE: Kubernetes stores Node objects under /registry/minions/, not /registry/nodes/.
+	// See the "/registry/minions/" entry at the end of this list.
 	"/registry/events/",
 	"/registry/limitranges/",
 	"/registry/resourcequotas/",
@@ -331,7 +332,8 @@ func GetNamespace(data map[string]interface{}) string {
 // Key format: /registry/<resource>/<name>
 var clusterScopedBuiltIns = map[string]bool{
 	"namespaces":                      true,
-	"nodes":                           true,
+	// NOTE: Kubernetes stores Node objects under "minions", not "nodes".
+	// See the "minions" entry below.
 	"persistentvolumes":               true,
 	"clusterroles":                    true,
 	"clusterrolebindings":             true,
