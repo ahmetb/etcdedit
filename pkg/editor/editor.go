@@ -28,14 +28,18 @@ func SelectEditor(flagValue string) string {
 // LaunchEditor opens the specified editor with the given file path.
 // It connects the editor's stdin/stdout/stderr to the current terminal.
 // Returns an error if the editor exits with non-zero status.
-func LaunchEditor(editor, filePath string) error {
-	parts := strings.Fields(editor)
-	if len(parts) == 0 {
+func LaunchEditor(editorCmd, filePath string) error {
+	if len(strings.Fields(editorCmd)) == 0 {
 		return fmt.Errorf("empty editor command")
 	}
 
-	args := append(parts[1:], filePath)
-	cmd := exec.Command(parts[0], args...)
+	var cmd *exec.Cmd
+	if strings.ContainsAny(editorCmd, " \t") {
+		// Editor command has arguments — invoke through shell so quoting works
+		cmd = exec.Command("sh", "-c", editorCmd+` "$1"`, "--", filePath)
+	} else {
+		cmd = exec.Command(editorCmd, filePath)
+	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
