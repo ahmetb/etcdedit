@@ -379,6 +379,15 @@ func NamespaceFromKey(keyPath string) string {
 		if clusterScopedBuiltIns[resource] {
 			return "" // cluster-scoped: /registry/<resource>/<name>
 		}
+		// Services are stored with a sub-resource segment:
+		// /registry/services/specs/<namespace>/<name>
+		// /registry/services/endpoints/<namespace>/<name>
+		if resource == "services" {
+			if len(parts) >= 5 {
+				return parts[3]
+			}
+			return ""
+		}
 		// Namespaced built-in: /registry/<resource>/<namespace>/<name>
 		if len(parts) >= 4 {
 			return parts[2]

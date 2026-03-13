@@ -210,7 +210,9 @@ func TestNamespaceFromKey(t *testing.T) {
 	}{
 		// Namespaced built-in
 		{"/registry/pods/default/nginx", "default"},
-		{"/registry/services/kube-system/kube-dns", "kube-system"},
+		{"/registry/services/specs/kube-system/kube-dns", "kube-system"},
+		{"/registry/services/specs/test-ns/my-svc", "test-ns"},
+		{"/registry/services/endpoints/test-ns/my-ep", "test-ns"},
 		{"/registry/configmaps/my-ns/my-cm", "my-ns"},
 		{"/registry/deployments/production/my-deploy", "production"},
 		// Cluster-scoped built-in (no namespace)
