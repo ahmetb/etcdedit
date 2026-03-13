@@ -18,6 +18,7 @@ func TestIsBuiltIn(t *testing.T) {
 		{"/registry/configmaps/default/my-cm", true},
 		{"/registry/clusterroles/admin", true},
 		{"/registry/customresourcedefinitions/foo", true},
+		{"/registry/minions/my-node", true},
 		// CRD paths
 		{"/registry/crontabs.stable.example.com/default/my-cron", false},
 		{"/registry/clusters.cluster.x-k8s.io/default/my-cluster", false},
@@ -219,6 +220,7 @@ func TestNamespaceFromKey(t *testing.T) {
 		{"/registry/clusterroles/admin", ""},
 		{"/registry/clusterrolebindings/admin-binding", ""},
 		{"/registry/persistentvolumes/pv-1", ""},
+		{"/registry/minions/my-node", ""},
 		// CRD namespaced (group contains dot)
 		{"/registry/crontabs.stable.example.com/crontabs/default/my-cron", "default"},
 		// CRD cluster-scoped or ambiguous (too few parts)

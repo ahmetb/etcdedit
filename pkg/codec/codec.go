@@ -88,6 +88,7 @@ var builtInPaths = []string{
 	"/registry/csioperatorstates/",
 	"/registry/volumeattributesclasses/",
 	"/registry/storagemigrations/",
+	"/registry/minions/",
 }
 
 // k8s protobuf magic prefix
@@ -347,6 +348,7 @@ var clusterScopedBuiltIns = map[string]bool{
 	"csinodes":                        true,
 	"volumeattachments":               true,
 	"csistoragecapacities":            true,
+	"minions":                         true,
 }
 
 // NameFromKey extracts the resource name from an etcd key path.
